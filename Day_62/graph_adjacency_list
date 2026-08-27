@@ -1,0 +1,86 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Structure to represent a node in the linked list
+struct Node {
+    int vertex;
+    struct Node* next;
+};
+
+// Helper function to create a new linked list node
+struct Node* createNode(int v) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    newNode->vertex = v;
+    newNode->next = NULL;
+    return newNode;
+}
+
+// Function to add an edge to the adjacency list
+void addEdge(struct Node** adj, int u, int v, int isDirected) {
+    // Add edge from u to v (Insert at the beginning of u's list)
+    struct Node* newNode = createNode(v);
+    newNode->next = adj[u];
+    adj[u] = newNode;
+
+    // If undirected, add edge from v to u (Insert at the beginning of v's list)
+    if (!isDirected) {
+        newNode = createNode(u);
+        newNode->next = adj[v];
+        adj[v] = newNode;
+    }
+}
+
+int main() {
+    int n, m;
+
+    // Read number of vertices (n) and edges (m)
+    if (scanf("%d %d", &n, &m) != 2) {
+        return 0;
+    }
+
+    // Create an array of pointers to Node structs to represent the Adjacency List.
+    struct Node** adj = (struct Node**)malloc(n * sizeof(struct Node*));
+    
+    // Initialize all heads to NULL
+    for (int i = 0; i < n; i++) {
+        adj[i] = NULL;
+    }
+
+    // Toggle this flag based on your graph type
+    // 0 = Undirected graph, 1 = Directed graph
+    int isDirected = 0;
+
+    // Read all m edges
+    for (int i = 0; i < m; i++) {
+        int u, v;
+        scanf("%d %d", &u, &v);
+        
+        // Assuming 0-indexed vertices (0 to n-1).
+        // If your input is 1-indexed, pass u-1 and v-1 to addEdge.
+        addEdge(adj, u, v, isDirected);
+    }
+
+    // Print the adjacency list
+    for (int i = 0; i < n; i++) {
+        printf("Vertex %d: ", i);
+        struct Node* temp = adj[i];
+        while (temp != NULL) {
+            printf("%d ", temp->vertex);
+            temp = temp->next;
+        }
+        printf("\n");
+    }
+
+    // Clean up allocated memory to prevent memory leaks
+    for (int i = 0; i < n; i++) {
+        struct Node* temp = adj[i];
+        while (temp != NULL) {
+            struct Node* toFree = temp;
+            temp = temp->next;
+            free(toFree);
+        }
+    }
+    free(adj);
+
+    return 0;
+}
